@@ -71,7 +71,7 @@ Food_Equity_Dashboard/
 │   ├── population.csv                 # Census county population estimates
 │   ├── Poverty_rate.csv               # ACS poverty rate by county
 │   ├── Unemployment_rate.xlsx         # BLS unemployment (processed)
-│   └── Data Notes.docx                # Source documentation and field descriptions
+│   └── Data_Links.xlsx                # Source documentation
 │
 ├── References/
 │   └── Map_the_Meal_Gap_2025_Technical_Brief.pdf   # Feeding America methodology
