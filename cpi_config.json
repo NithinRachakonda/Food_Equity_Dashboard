@@ -1,0 +1,21 @@
+{
+    "base_period": "June 2023",
+    "regions": {
+        "NE": {
+            "base_cpi_2023": 305.456,
+            "current_cpi": 321.550
+        },
+        "MW": {
+            "base_cpi_2023": 287.256,
+            "current_cpi": 297.340
+        },
+        "S": {
+            "base_cpi_2023": 299.741,
+            "current_cpi": 314.766
+        },
+        "W": {
+            "base_cpi_2023": 316.652,
+            "current_cpi": 335.240
+        }
+    }
+}
