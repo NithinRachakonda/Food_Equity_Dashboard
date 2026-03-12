@@ -96,7 +96,7 @@ The food insecurity rate for each county is estimated using a multivariate linea
 
 ```
 FI_rate = α + β₁(Unemployment) + β₂(Poverty) + β₃(Disability)
-            + β₄(Homeownership) + β₅(Median Income) + μ_year + υ_state
+            + β₄(Homeownership) + μ_year + constant
 ```
 
 **Coefficients applied at county level:**
