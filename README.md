@@ -164,8 +164,7 @@ New CPI Data Available (monthly)
          ▼ (S3 Event Trigger)
   ┌──────────────────────────────┐
   │   Lambda: CPI Updater        │
-  │  - Fetches CPI-U "Food at    │
-  │    Home" index by region     │
+  │                              │
   │  - Calculates multiplier:    │
   │    Current CPI / 2023 Avg    │
   │  - Reads insecure_population │
@@ -313,10 +312,13 @@ jupyter notebook Data_cleaning.ipynb
 
 ---
 
-## 👤 Author
+## 👤 Authors
 
 **Nithin Rachakonda**
 - GitHub: [@NithinRachakonda](https://github.com/NithinRachakonda)
+
+**Nithisha Marripelly**
+- GitHub: [@NithishaMarripelly](https://github.com/NithishaMarripelly)
 
 ---
 
