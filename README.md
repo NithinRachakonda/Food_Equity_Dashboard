@@ -40,10 +40,15 @@ Phase 4: Financial Calculation (CPI Inflation Adjustment, Shortfall Formula)
       │
       ▼
 Phase 5: AWS Deployment
-         ├── S3 (Data Lake)
-         ├── Lambda (Data API)
-         ├── API Gateway (REST Endpoint)
-         └── CloudFront + S3 (Frontend Hosting)
+         ├── Pipeline Infra
+         │     ├── S3 Data Lake (raw/ + final-output/)
+         │     ├── AWS Glue Job (cloud cleaning + modeling)
+         │     └── CPI Update Lambda (monthly inflation refresh)
+         │
+         └── Dashboard Infra
+               ├── S3 (static website hosting)
+               ├── Lambda + API Gateway (data API)
+               └── CloudFront (HTTPS CDN)
 ```
 
 ---
@@ -79,7 +84,9 @@ Food_Equity_Dashboard/
 │   └── food_equity_map.html           # Standalone interactive dashboard (D3.js)
 │
 └── AWS/
-    └── lambda_function.py             # AWS Lambda handler (S3 → JSON API)
+    ├── lambda_api.py                  # Lambda: serves CSV from S3 as JSON API
+    ├── lambda_cpi_updater.py          # Lambda: recalculates shortfalls on CPI update
+    └── glue_cleaning_job.py           # AWS Glue job: replicates Data_cleaning.py in cloud
 ```
 
 ---
@@ -139,28 +146,108 @@ Regional CPI multipliers are applied to localize and project 2023 meal cost data
 
 ## ☁️ AWS Infrastructure
 
+The project uses **two independent AWS architectures** serving distinct roles: one for data pipeline automation and one for dashboard delivery.
+
+---
+
+### Architecture 1 — Data Pipeline & CPI Automation
+
+Replicates and automates the local cleaning pipeline in the cloud, and enables lightweight monthly CPI refresh without re-running the full pipeline.
+
+```
+New CPI Data Available (monthly)
+         │
+         ▼
+   Upload CPI CSV to S3
+   s3://food-equity-dashboard/raw/cpi/
+         │
+         ▼ (S3 Event Trigger)
+  ┌──────────────────────────────┐
+  │   Lambda: CPI Updater        │
+  │  - Fetches CPI-U "Food at    │
+  │    Home" index by region     │
+  │  - Calculates multiplier:    │
+  │    Current CPI / 2023 Avg    │
+  │  - Reads insecure_population │
+  │    from adjusted_final_data  │
+  │  - Recalculates AFBS:        │
+  │    Pop × 52 × (7/12) × Cost  │
+  │  - Overwrites output CSV     │
+  └──────────────────────────────┘
+         │
+         ▼
+  S3 Final Output (overwrite)
+  s3://food-equity-dashboard/final-output/adjusted_final_data.csv
+```
+
+**Full pipeline migration (one-time, via AWS Glue):**
+
+```
+Raw Datasets
+s3://food-equity-dashboard/raw/
+  ├── poverty_rate.csv
+  ├── unemployment_rate.csv
+  ├── disability_rate.csv
+  ├── homeownership_rate.csv
+  ├── population.csv
+  ├── average_meal_prices.csv
+  └── cpi_config.json
+         │
+         ▼
+  AWS Glue Job (PySpark / pandas)
+  - make_common_key() normalization
+  - Merge all datasets on common_key
+  - Apply regression coefficients
+  - State-level calibration offsets
+  - CPI inflation adjustment
+  - Shortfall formula: Pop × 52 × (7/12) × Adjusted Meal Cost
+         │
+         ▼
+  S3 Final Output
+  s3://food-equity-dashboard/final-output/adjusted_final_data.csv
+```
+
+---
+
+### Architecture 2 — Dashboard Delivery
+
+Serves the static dashboard and live data to end users via HTTPS with zero ongoing server costs.
+
 ```
 User Browser
     │
     ▼
 CloudFront (HTTPS CDN)
     │
-    ├──► S3 Bucket (food_equity_map.html — static website)
+    ├──► S3 Bucket
+    │    food_equity_map.html (static website)
     │
-    └──► API Gateway (GET /prod/data)
+    └──► API Gateway  GET /prod/data
               │
               ▼
-         Lambda Function
+         Lambda: API Handler
+         - boto3 reads S3 final-output CSV
+         - Streams as JSON to browser
               │
               ▼
-         S3 Data Lake (adjusted_final_data.csv)
+         S3 Data Lake
+         adjusted_final_data.csv
 ```
 
-**Services used:**
-- **S3** — Static website hosting + data lake storage
-- **Lambda** — Python serverless function (boto3, CSV → JSON)
-- **API Gateway** — HTTP API with CORS configured
-- **CloudFront** — HTTPS delivery with WAF protection (Free plan)
+---
+
+### Services Summary
+
+| Service | Role |
+|---|---|
+| **S3** | Data lake (`/raw/`, `/final-output/`) + static website hosting |
+| **AWS Glue** | Cloud execution of full cleaning + modeling pipeline |
+| **Lambda (CPI Updater)** | Lightweight monthly inflation recalculation; triggered by S3 upload |
+| **Lambda (API Handler)** | Serves final CSV as JSON to the dashboard on every page load |
+| **API Gateway** | HTTP API endpoint with CORS configured for CloudFront + S3 origins |
+| **CloudFront** | HTTPS CDN delivery; eliminates browser "Not Secure" warning |
+
+**Estimated monthly cost:** ~$0 at portfolio traffic levels (all services within AWS Free Tier)
 
 ---
 
