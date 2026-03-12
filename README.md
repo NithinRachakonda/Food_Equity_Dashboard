@@ -8,8 +8,8 @@ An interactive, county-level food insecurity visualization dashboard built for t
 
 ## 📌 Project Overview
 
-Food insecurity is one of the most persistent socioeconomic challenges in the United States. This project builds a full data pipeline — from raw Census and Feeding America datasets to a publicly accessible interactive map — allowing policymakers, researchers, and advocates to understand where food insecurity is most severe and what factors drive it.
-
+Food insecurity affects every part of the country, but the scale of it rarely reaches the people with the capacity to respond. This project pulls together Census, BLS, and Feeding America data into a county-level map that shows where the problem is worst and more concretely, how much money it would actually take to close the gap. That second part matters. The Annual Budget Shortfall is calculated for every county: the dollar difference between what food-insecure households have and what they need to eat adequately. For a donor, it makes an abstract crisis legible. For a researcher or policymaker, it shows which communities are furthest behind and what's driving it.
+ 
 The dashboard visualizes:
 - **Annual Budget Shortfall** — total dollar gap to meet food needs
 - **Food Insecurity Rate** — modeled proportion of food-insecure population
@@ -135,7 +135,7 @@ Regional CPI multipliers are applied to localize and project 2023 meal cost data
 | Unemployment Rate | Bureau of Labor Statistics (LAUS) | Annual average, county-level |
 | Disability Rate | U.S. Census Bureau ACS (Table S1810) | Disability prevalence |
 | Homeownership Rate | U.S. Census Bureau ACS (Table DP04) | Owner-occupied housing |
-| Population | U.S. Census Bureau ACS (Table DP05) | Total county population |
+| Population | U.S. Census Bureau ACS (Table B01003) | Total county population |
 | Meal Costs | Feeding America / NielsenIQ | Localized cost-of-food index |
 | CPI Adjustment | Bureau of Labor Statistics (CPI-U) | Regional inflation multipliers |
 
