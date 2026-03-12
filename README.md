@@ -67,7 +67,6 @@ Food_Equity_Dashboard/
 │
 ├── Data/                              # Raw source datasets
 │   ├── average_meal_prices.csv        # Feeding America localized meal costs
-│   ├── CPI.csv                        # Consumer Price Index by region
 │   ├── Disability_rate.csv            # ACS disability prevalence by county
 │   ├── Homeownership_rate.csv         # ACS homeownership rate by county
 │   ├── population.csv                 # Census county population estimates
@@ -149,33 +148,6 @@ The project uses **two independent AWS architectures** serving distinct roles: o
 
 ### Architecture 1 — Data Pipeline & CPI Automation
 
-Replicates and automates the local cleaning pipeline in the cloud, and enables lightweight monthly CPI refresh without re-running the full pipeline.
-
-```
-New CPI Data Available (monthly)
-         │
-         ▼
-   Upload CPI CSV to S3
-   s3://food-equity-dashboard/raw/cpi/
-         │
-         ▼ (S3 Event Trigger)
-  ┌──────────────────────────────┐
-  │   Lambda: CPI Updater        │
-  │                              │
-  │  - Calculates multiplier:    │
-  │    Current CPI / 2023 Avg    │
-  │  - Reads insecure_population │
-  │    from adjusted_final_data  │
-  │  - Recalculates AFBS:        │
-  │    Pop × 52 × (7/12) × Cost  │
-  │  - Overwrites output CSV     │
-  └──────────────────────────────┘
-         │
-         ▼
-  S3 Final Output (overwrite)
-  s3://food-equity-dashboard/final-output/adjusted_final_data.csv
-```
-
 **Full pipeline migration (one-time, via AWS Glue):**
 
 ```
@@ -186,8 +158,7 @@ s3://food-equity-dashboard/raw/
   ├── disability_rate.csv
   ├── homeownership_rate.csv
   ├── population.csv
-  ├── average_meal_prices.csv
-  └── cpi_config.json
+  └── average_meal_prices.csv (as of June 2023)
          │
          ▼
   AWS Glue Job (PySpark / pandas)
@@ -195,8 +166,34 @@ s3://food-equity-dashboard/raw/
   - Merge all datasets on common_key
   - Apply regression coefficients
   - State-level calibration offsets
-  - CPI inflation adjustment
   - Shortfall formula: Pop × 52 × (7/12) × Adjusted Meal Cost
+         │
+         ▼
+  S3 Final Output
+  s3://food-equity-dashboard/final-output/final_cleaned_data.csv
+```
+
+Replicates and automates the local cleaning pipeline in the cloud, and enables lightweight monthly CPI refresh without re-running the full pipeline.
+
+```
+New CPI Data Available (monthly)
+         │
+         ▼
+   Upload updated CPI_config.json S3
+   Poke the final_cleaned_data.csv
+         │
+         ▼ (S3 Event Trigger)
+  ┌──────────────────────────────┐
+  │   Lambda: CPI Updater        │
+  │                              │
+  │  - Calculates multiplier:    │
+  │    Current CPI / CPI June,'23│
+  │  - Reads insecure_population │
+  │    from final_cleaned_data   │
+  │  - Recalculates AFBS:        │
+  │    Pop × 52 × (7/12) × Cost  │
+  │  - writes output CSV         │
+  └──────────────────────────────┘
          │
          ▼
   S3 Final Output
