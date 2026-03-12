@@ -76,9 +76,6 @@ Food_Equity_Dashboard/
 ├── References/
 │   └── Map_the_Meal_Gap_2025_Technical_Brief.pdf   # Feeding America methodology
 │
-├── Dashboard/
-│   └── food_equity_map.html           # Standalone interactive dashboard (D3.js)
-│
 └── AWS/
     ├── lambda_api.py                  # Lambda: serves CSV from S3 as JSON API
     ├── lambda_cpi_updater.py          # Lambda: recalculates shortfalls on CPI update
