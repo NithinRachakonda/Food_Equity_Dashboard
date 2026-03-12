@@ -67,11 +67,9 @@ Food_Equity_Dashboard/
 │
 ├── Data/                              # Raw source datasets
 │   ├── average_meal_prices.csv        # Feeding America localized meal costs
-│   ├── CPI_Dec.csv                    # Consumer Price Index by region
+│   ├── CPI.csv                        # Consumer Price Index by region
 │   ├── Disability_rate.csv            # ACS disability prevalence by county
 │   ├── Homeownership_rate.csv         # ACS homeownership rate by county
-│   ├── laucntycur14.zip               # BLS Local Area Unemployment Statistics
-│   ├── MMG2025_Data_ToShare.zip       # Feeding America Map the Meal Gap 2025
 │   ├── population.csv                 # Census county population estimates
 │   ├── Poverty_rate.csv               # ACS poverty rate by county
 │   ├── Unemployment_rate.xlsx         # BLS unemployment (processed)
@@ -133,7 +131,6 @@ Regional CPI multipliers are applied to localize and project 2023 meal cost data
 
 | Dataset | Source | Description |
 |---|---|---|
-| Food Insecurity Rates | [Feeding America MMG 2025](https://www.feedingamerica.org/research/map-the-meal-gap) | County-level food insecurity estimates |
 | Poverty Rate | U.S. Census Bureau ACS (Table B14006) | 5-year estimates |
 | Unemployment Rate | Bureau of Labor Statistics (LAUS) | Annual average, county-level |
 | Disability Rate | U.S. Census Bureau ACS (Table S1810) | Disability prevalence |
@@ -252,13 +249,13 @@ CloudFront (HTTPS CDN)
 
 ## 🖥️ Dashboard Features
 
-- **USA Overview Map** — all 50 states colored by selected metric using a square-root color scale (blue → green → yellow → red)
-- **Click-to-Drill** — click any state to zoom in and render county-level choropleth
-- **ESC to Return** — keyboard shortcut to return to national view
-- **State Search** — type any state name or abbreviation to jump directly
-- **Metric Switcher** — toggle between 7 socioeconomic indicators
-- **Live Tooltips** — hover over any state or county for detailed stats
-- **Auto-Updating Data** — Lambda refreshes from S3 monthly; dashboard always reflects latest data
+- **USA Overview Map**: all 50 states colored by selected metric using a square-root color scale (blue → green → yellow → red)
+- **Click-to-Drill**: click any state to zoom in and render county-level choropleth
+- **ESC to Return**: keyboard shortcut to return to national view
+- **State Search**: type any state name or abbreviation to jump directly
+- **Metric Switcher**: toggle between 7 socioeconomic indicators
+- **Live Tooltips**: hover over any state or county for detailed stats
+- **Auto-Updating Data**: Lambda refreshes from S3 monthly; dashboard always reflects latest data
 
 ---
 
@@ -269,8 +266,7 @@ The dashboard is a single self-contained HTML file — no server or build step r
 ```bash
 git clone https://github.com/NithinRachakonda/Food_Equity_Dashboard.git
 cd Food_Equity_Dashboard/Dashboard
-open food_equity_map.html   # macOS
-# or double-click the file in Windows Explorer
+open food_equity_map.html  
 ```
 
 The file fetches data from the live AWS API on load. An internet connection is required.
@@ -295,10 +291,10 @@ jupyter notebook Data_cleaning.ipynb
 
 ## 📐 Key Design Decisions
 
-- **Square-root color scale** — used instead of linear to spread mid-range values visually, preventing most counties from appearing uniformly low-risk
-- **Pre-projected TopoJSON** — `us-atlas@3` uses Albers USA pre-projection; `d3.geoIdentity()` is used instead of `d3.geoAlbersUsa()` to avoid double-projection artifacts
-- **State dimming on drill-down** — surrounding states fade to near-black when viewing county detail, reducing visual noise
-- **Serverless API** — Lambda + API Gateway avoids always-on server costs; ~$0/month at portfolio traffic levels
+- **Square-root color scale**: used instead of linear to spread mid-range values visually, preventing most counties from appearing uniformly low-risk
+- **Pre-projected TopoJSON**: `us-atlas@3` uses Albers USA pre-projection; `d3.geoIdentity()` is used instead of `d3.geoAlbersUsa()` to avoid double-projection artifacts
+- **State dimming on drill-down**: surrounding states fade to near-black when viewing county detail, reducing visual noise
+- **Serverless API**: Lambda + API Gateway avoids always-on server costs; ~$0/month at portfolio traffic levels
 
 ---
 
