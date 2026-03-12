@@ -59,13 +59,12 @@ Phase 5: AWS Deployment
 Food_Equity_Dashboard/
 │
 ├── README.md
-├── Data.xlsx                          # Consolidated gold-layer dataset
+├── Data.csv                           # Consolidated gold-layer dataset
 ├── Data_cleaning.ipynb                # Full data pipeline notebook
 ├── Data_cleaning.py                   # Exported Python script
 ├── cpi_config.json                    # Regional CPI multipliers (2023 → 2026)
-├── manifest.json                      # AWS S3 QuickSight manifest (legacy)
 │
-├── Data/                              # Raw source datasets
+├── Raw Data/                          # Raw source datasets
 │   ├── average_meal_prices.csv        # Feeding America localized meal costs
 │   ├── Disability_rate.csv            # ACS disability prevalence by county
 │   ├── Homeownership_rate.csv         # ACS homeownership rate by county
@@ -273,15 +272,15 @@ The file fetches data from the live AWS API on load. An internet connection is r
 ## 🔧 Reproducing the Data Pipeline
 
 ```bash
-# 1. Install dependencies
+# Install dependencies
 pip install pandas numpy scikit-learn openpyxl boto3 jupyter
 
-# 2. Place raw datasets in the Data/ folder
+# Place raw datasets in the Data/ folder
 
-# 3. Run the cleaning and modeling pipeline
+# Run the cleaning and modeling pipeline
 jupyter notebook Data_cleaning.ipynb
 
-# 4. Output: Data.xlsx (gold layer, ready for S3 upload)
+# Output: Data.csv (we will mimic this process in AWS)
 ```
 
 ---
