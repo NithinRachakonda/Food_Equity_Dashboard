@@ -59,32 +59,27 @@ Phase 5: AWS Deployment
 Food_Equity_Dashboard/
 │
 ├── README.md
-├── Data.xlsx                          # Consolidated gold-layer dataset
+├── Data.csv                           # Consolidated gold-layer dataset
 ├── Data_cleaning.ipynb                # Full data pipeline notebook
 ├── Data_cleaning.py                   # Exported Python script
 ├── cpi_config.json                    # Regional CPI multipliers (2023 → 2026)
-├── manifest.json                      # AWS S3 QuickSight manifest (legacy)
 │
 ├── Data/                              # Raw source datasets
 │   ├── average_meal_prices.csv        # Feeding America localized meal costs
-│   ├── CPI.csv                        # Consumer Price Index by region
 │   ├── Disability_rate.csv            # ACS disability prevalence by county
 │   ├── Homeownership_rate.csv         # ACS homeownership rate by county
 │   ├── population.csv                 # Census county population estimates
 │   ├── Poverty_rate.csv               # ACS poverty rate by county
 │   ├── Unemployment_rate.xlsx         # BLS unemployment (processed)
-│   └── Data Notes.docx                # Source documentation and field descriptions
+│   └── Data_Links.xlsx                # Source documentation
 │
 ├── References/
 │   └── Map_the_Meal_Gap_2025_Technical_Brief.pdf   # Feeding America methodology
 │
-├── Dashboard/
-│   └── food_equity_map.html           # Standalone interactive dashboard (D3.js)
-│
 └── AWS/
     ├── lambda_api.py                  # Lambda: serves CSV from S3 as JSON API
     ├── lambda_cpi_updater.py          # Lambda: recalculates shortfalls on CPI update
-    └── glue_cleaning_job.py           # AWS Glue job: replicates Data_cleaning.py in cloud
+    └── glue_ETL_job.py           # AWS Glue job: replicates Data_cleaning.py in cloud
 ```
 
 ---
@@ -97,7 +92,7 @@ The food insecurity rate for each county is estimated using a multivariate linea
 
 ```
 FI_rate = α + β₁(Unemployment) + β₂(Poverty) + β₃(Disability)
-            + β₄(Homeownership) + β₅(Median Income) + μ_year + υ_state
+            + β₄(Homeownership) + μ_year + constant
 ```
 
 **Coefficients applied at county level:**
@@ -149,33 +144,6 @@ The project uses **two independent AWS architectures** serving distinct roles: o
 
 ### Architecture 1 — Data Pipeline & CPI Automation
 
-Replicates and automates the local cleaning pipeline in the cloud, and enables lightweight monthly CPI refresh without re-running the full pipeline.
-
-```
-New CPI Data Available (monthly)
-         │
-         ▼
-   Upload CPI CSV to S3
-   s3://food-equity-dashboard/raw/cpi/
-         │
-         ▼ (S3 Event Trigger)
-  ┌──────────────────────────────┐
-  │   Lambda: CPI Updater        │
-  │                              │
-  │  - Calculates multiplier:    │
-  │    Current CPI / 2023 Avg    │
-  │  - Reads insecure_population │
-  │    from adjusted_final_data  │
-  │  - Recalculates AFBS:        │
-  │    Pop × 52 × (7/12) × Cost  │
-  │  - Overwrites output CSV     │
-  └──────────────────────────────┘
-         │
-         ▼
-  S3 Final Output (overwrite)
-  s3://food-equity-dashboard/final-output/adjusted_final_data.csv
-```
-
 **Full pipeline migration (one-time, via AWS Glue):**
 
 ```
@@ -186,8 +154,7 @@ s3://food-equity-dashboard/raw/
   ├── disability_rate.csv
   ├── homeownership_rate.csv
   ├── population.csv
-  ├── average_meal_prices.csv
-  └── cpi_config.json
+  └── average_meal_prices.csv (as of June 2023)
          │
          ▼
   AWS Glue Job (PySpark / pandas)
@@ -195,8 +162,34 @@ s3://food-equity-dashboard/raw/
   - Merge all datasets on common_key
   - Apply regression coefficients
   - State-level calibration offsets
-  - CPI inflation adjustment
   - Shortfall formula: Pop × 52 × (7/12) × Adjusted Meal Cost
+         │
+         ▼
+  S3 Final Output
+  s3://food-equity-dashboard/final-output/final_cleaned_data.csv
+```
+
+Replicates and automates the local cleaning pipeline in the cloud, and enables lightweight monthly CPI refresh without re-running the full pipeline.
+
+```
+New CPI Data Available (monthly)
+         │
+         ▼
+   Upload updated CPI_config.json S3
+   Poke the final_cleaned_data.csv
+         │
+         ▼ (S3 Event Trigger)
+  ┌──────────────────────────────┐
+  │   Lambda: CPI Updater        │
+  │                              │
+  │  - Calculates multiplier:    │
+  │    Current CPI / CPI June,'23│
+  │  - Reads insecure_population │
+  │    from final_cleaned_data   │
+  │  - Recalculates AFBS:        │
+  │    Pop × 52 × (7/12) × Cost  │
+  │  - writes output CSV         │
+  └──────────────────────────────┘
          │
          ▼
   S3 Final Output
@@ -276,15 +269,15 @@ The file fetches data from the live AWS API on load. An internet connection is r
 ## 🔧 Reproducing the Data Pipeline
 
 ```bash
-# 1. Install dependencies
+# Install dependencies
 pip install pandas numpy scikit-learn openpyxl boto3 jupyter
 
-# 2. Place raw datasets in the Data/ folder
+# Place raw datasets in the Data/ folder
 
-# 3. Run the cleaning and modeling pipeline
+# Run the cleaning and modeling pipeline
 jupyter notebook Data_cleaning.ipynb
 
-# 4. Output: Data.xlsx (gold layer, ready for S3 upload)
+# Output: Data.csv (we will mimic this process in AWS)
 ```
 
 ---
