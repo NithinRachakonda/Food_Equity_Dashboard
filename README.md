@@ -79,7 +79,7 @@ Food_Equity_Dashboard/
 └── AWS/
     ├── lambda_api.py                  # Lambda: serves CSV from S3 as JSON API
     ├── lambda_cpi_updater.py          # Lambda: recalculates shortfalls on CPI update
-    └── glue_cleaning_job.py           # AWS Glue job: replicates Data_cleaning.py in cloud
+    └── glue_ETL_job.py           # AWS Glue job: replicates Data_cleaning.py in cloud
 ```
 
 ---
