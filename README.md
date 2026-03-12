@@ -64,7 +64,7 @@ Food_Equity_Dashboard/
 ├── Data_cleaning.py                   # Exported Python script
 ├── cpi_config.json                    # Regional CPI multipliers (2023 → 2026)
 │
-├── Raw Data/                          # Raw source datasets
+├── Data/                              # Raw source datasets
 │   ├── average_meal_prices.csv        # Feeding America localized meal costs
 │   ├── Disability_rate.csv            # ACS disability prevalence by county
 │   ├── Homeownership_rate.csv         # ACS homeownership rate by county
