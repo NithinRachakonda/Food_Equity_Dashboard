@@ -11,13 +11,13 @@ An interactive, county-level food insecurity visualization dashboard built for t
 Food insecurity affects every part of the country, but the scale of it rarely reaches the people with the capacity to respond. This project pulls together Census, BLS, and Feeding America data into a county-level map that shows where the problem is worst and more concretely, how much money it would actually take to close the gap. That second part matters. The Annual Budget Shortfall is calculated for every county: the dollar difference between what food-insecure households have and what they need to eat adequately. For a donor, it makes an abstract crisis legible. For a researcher or policymaker, it shows which communities are furthest behind and what's driving it.
  
 The dashboard visualizes:
-- **Annual Budget Shortfall** — total dollar gap to meet food needs
-- **Food Insecurity Rate** — modeled proportion of food-insecure population
-- **Poverty Rate** — county-level poverty prevalence
-- **Unemployment Rate** — BLS annual average
-- **Disability Rate** — a key risk factor per Feeding America's 2025 model
-- **Homeownership Rate** — inverse proxy for economic stability
-- **Food Insecure Population** — total count of affected individuals
+- **Annual Budget Shortfall**: total dollar gap to meet food needs
+- **Food Insecurity Rate**: modeled proportion of food-insecure population
+- **Poverty Rate**: county-level poverty prevalence
+- **Unemployment Rate**: BLS annual average
+- **Disability Rate**: a key risk factor per Feeding America's 2025 model
+- **Homeownership Rate**: inverse proxy for economic stability
+- **Food Insecure Population**: total count of affected individuals
 
 ---
 
@@ -79,7 +79,7 @@ Food_Equity_Dashboard/
 └── AWS/
     ├── lambda_api.py                  # Lambda: serves CSV from S3 as JSON API
     ├── lambda_cpi_updater.py          # Lambda: recalculates shortfalls on CPI update
-    └── glue_ETL_job.py           # AWS Glue job: replicates Data_cleaning.py in cloud
+    └── glue_ETL_job.py                # AWS Glue job: replicates Data_cleaning.py in cloud
 ```
 
 ---
