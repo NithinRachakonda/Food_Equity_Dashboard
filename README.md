@@ -87,7 +87,6 @@ Food_Equity_Dashboard/
 ## 🔬 Methodology
 
 ### Statistical Model
-
 The food insecurity rate for each county is estimated using a multivariate linear regression model derived from **Feeding America's Map the Meal Gap 2025 Technical Brief** (Gundersen et al.), based on state-level CPS data from 2009–2023:
 
 ```
