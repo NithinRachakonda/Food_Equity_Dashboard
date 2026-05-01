@@ -156,7 +156,7 @@ s3://food-equity-dashboard/raw/
   └── average_meal_prices.csv (as of June 2023)
          │
          ▼
-  AWS Glue Job (PySpark / pandas)
+  AWS Glue Job
   - make_common_key() normalization
   - Merge all datasets on common_key
   - Apply regression coefficients
